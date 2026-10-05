@@ -1,0 +1,12 @@
+data/raw/
+data/processed/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.git/
+.gitignore
+mlflow_backup_before_path_fix.db
+tests/
+scripts/
+README.md
