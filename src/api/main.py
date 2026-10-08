@@ -6,6 +6,7 @@ sys.path.insert(0, PROJECT_ROOT)
 import time
 import logging
 import pandas as pd
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from typing import Literal
@@ -19,13 +20,9 @@ from src.monitoring import db, drift
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("churn_api")
 
-app = FastAPI(title="Churn Prediction API", version="1.0.0")
 
-REFERENCE_STATS_PATH = str(config.MODEL_DIR / "reference_stats.json")
-
-
-@app.on_event("startup")
-def load_models_on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     try:
         inference.get_model("champion")
         inference.get_model("challenger")
@@ -33,6 +30,12 @@ def load_models_on_startup():
     except Exception as e:
         logger.error(f"FATAL: model loading failed at startup: {e}")
         raise
+    yield
+
+
+app = FastAPI(title="Churn Prediction API", version="1.0.0", lifespan=lifespan)
+
+REFERENCE_STATS_PATH = str(config.MODEL_DIR / "reference_stats.json")
 
 
 @app.get("/health")
