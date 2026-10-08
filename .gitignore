@@ -5,3 +5,7 @@ __pycache__/
 *.pyo
 .ipynb_checkpoints/
 mlflow_backup_before_path_fix.db
+
+# Phase 9: pytest artifacts
+.coverage
+.pytest_cache/
