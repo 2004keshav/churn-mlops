@@ -32,14 +32,9 @@ def set_alias(alias, version, model_name=MODEL_NAME):
 
 
 def load_model_by_alias(alias, model_name=MODEL_NAME):
-    """
-    Load the model currently pointed to by an alias.
-    Uses pyfunc (flavor-agnostic) since different model versions may be
-    logged with different native flavors (sklearn vs xgboost). Used in
-    Phase 5 serving — only .predict() / .predict_proba() are needed there.
-    """
+    """Load the model currently pointed to by an alias. Used in Phase 5 serving."""
     model_uri = f"models:/{model_name}@{alias}"
-    model = mlflow.pyfunc.load_model(model_uri)
+    model = mlflow.sklearn.load_model(model_uri)
     return model
 
 
@@ -49,6 +44,7 @@ def list_versions(model_name=MODEL_NAME):
     rm = client.get_registered_model(model_name)
     alias_map = rm.aliases  # {alias_name: version}
 
+    # Invert: version -> list of aliases pointing to it
     version_to_aliases = {}
     for alias, ver in alias_map.items():
         version_to_aliases.setdefault(str(ver), []).append(alias)
