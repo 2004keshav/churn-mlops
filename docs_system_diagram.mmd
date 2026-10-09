@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph Training["Training Pipeline"]
+        A[Telco CSV Dataset] --> B[clean.py<br/>Data Cleaning]
+        B --> C[Train/Test Split<br/>Encode + Scale]
+        C --> D[Train Models<br/>LogReg / XGBoost / RF]
+        D --> E[(MLflow Tracking<br/>SQLite backend)]
+    end
+
+    subgraph Registry["Model Registry"]
+        E --> F{{Model Registry<br/>churn_predictor}}
+        F -->|alias: champion| G[LogisticRegression]
+        F -->|alias: challenger| H[XGBoost]
+    end
+
+    subgraph Serving["Serving - Docker on Render"]
+        I[FastAPI app<br/>main.py] --> J[inference.py<br/>loads native flavor]
+        J -.->|"models:/name@alias"| F
+        I --> K[POST /predict]
+        I --> L[GET /health]
+    end
+
+    subgraph Monitoring["Monitoring Loop"]
+        K --> M[(Render Postgres<br/>predictions table)]
+        M --> N[drift.py<br/>KS test + PSI]
+        N --> O[GET /monitoring/drift]
+        M --> P[GET /monitoring/stats]
+    end
+
+    User([Client / curl]) --> K
+    User --> L
+    K --> User
