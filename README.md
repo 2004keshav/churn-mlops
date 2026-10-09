@@ -102,6 +102,24 @@ flowchart TB
 | Postgres logging | Every prediction logged (fails silently, never breaks the request) | prediction → `predictions` table row |
 | `drift.py` | KS test + PSI against reference stats | logged predictions → drift report |
 
+## CI/CD Flow
+
+```mermaid
+flowchart LR
+    A([Developer]) -->|git push| B[GitHub main branch]
+    B --> C[GitHub Actions<br/>ci.yml triggered]
+    C --> D[Install Python 3.12<br/>+ requirements.txt]
+    D --> E[Run pytest tests/unit/<br/>111 tests]
+    E -->|tests fail| F[["Pipeline stops<br/>no deploy"]]
+    E -->|tests pass AND push to main| G[POST to Render<br/>Deploy Hook]
+    G --> H[Render builds<br/>Docker image]
+    H --> I{Build succeeds?}
+    I -->|yes| J[New container starts<br/>lifespan fail-fast check]
+    I -->|no| K[Previous deploy<br/>stays live]
+    J -->|schema/config OK| L[("Live:<br/>churn-mlops-hm0l.onrender.com")]
+    J -->|fail-fast triggers| K
+```
+
 ## Tech Stack
 
 | Layer | Tools |
