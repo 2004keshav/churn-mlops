@@ -7,6 +7,8 @@ A production-style ML system (not just a trained model) for predicting customer 
 
 > Note: deployed on Render's free tier — the service spins down after 15 minutes of inactivity. The first request after idle may take 30-60s to respond (cold start); subsequent requests are fast.
 
+> **⚠️ Known constraint — Postgres expiry:** the monitoring database (`churn-mlops-db`) is on Render's free Postgres tier, which expires **~Nov 5, 2026** (14-day grace period after). After that, `/monitoring/stats` and `/monitoring/drift` may return errors or empty data until a new database is provisioned and reconnected — the `/predict` and `/health` endpoints are unaffected. This is a known, intentional trade-off of the free-tier constraint, not an unnoticed bug.
+
 ## Quick Start — Try the Live API
 
 ```bash
