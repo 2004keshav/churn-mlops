@@ -237,6 +237,16 @@ Documented explicitly rather than left implicit:
 - **GitHub token hygiene:** the project's PAT has been rotated/rescoped multiple times during development. It should continue to be rotated periodically; no automated rotation exists.
 - **Some unused imports** flagged in testing were never cleaned up (zero functional impact, cosmetic only).
 
+## Production Readiness Notes
+
+This project is scoped as a portfolio/learning system, not a production deployment. If taken to production, the following would be added:
+
+- **Authentication** — API key or OAuth2-based auth on every endpoint; currently all endpoints are open.
+- **Rate limiting** — per-client request limits (e.g. via a gateway or a library like `slowapi`) to prevent abuse of the free-tier compute.
+- **Secrets management** — move from manually rotated GitHub tokens / env vars to a managed secrets store (e.g. AWS Secrets Manager, or Render's built-in secret files) with automated rotation.
+- **Database resilience** — a paid Postgres tier with backups and connection pooling, replacing the current free tier (see the known constraint above).
+- **Horizontal scaling** — the current single free-tier instance has no redundancy; production would need multiple instances behind a load balancer.
+
 ## Phase History
 
 | Phase | What was built |
